@@ -1,11 +1,11 @@
-function [S,out] = GSR_OH(C,X,Omega,reg,verbose)
+function [S,out] = GSRH(C,X,Omega,reg,verbose)
     [O,T]  = size(X);
     mu0 = reg.mu; %commutativity
     rho = reg.rho; %matrix P
     alpha = reg.alpha;%soft thresholding
     beta = reg.beta; % proximal of P
     t0 = reg.t0;
-    max_iters = reg.max_iters;
+    max_iters = 10*reg.max_iters;
     Omg = Omega;
     multiples = numel(size(Omega)) > 2;
     delta = reg.delta;%0.001;
@@ -16,7 +16,7 @@ function [S,out] = GSR_OH(C,X,Omega,reg,verbose)
     end
 
     %initialize S as sparse symmetric random matrix
-    S = zeros(O);% generate_connected_ER(O,0.1);
+    S = zeros(O);%generate_connected_ER(O,0.1);
     %initialize P as random matrix
     P = zeros(O);
 
@@ -32,6 +32,7 @@ function [S,out] = GSR_OH(C,X,Omega,reg,verbose)
             else
                 C = 1/(t+t0)*((t+t0-1)*C + x*x'); % exp2
             end
+            
             lambda = max(eig(C))^2;
             gamma  = 1/(4*mu*lambda);
             
@@ -43,7 +44,6 @@ function [S,out] = GSR_OH(C,X,Omega,reg,verbose)
           %Compute gradient
             R = C*S+P-S*C-P';
             gS = mu*(C*R-R*C);
-
           %Take gradient descent step
             Ws = S-gamma*gS; 
           %Update S
@@ -59,7 +59,7 @@ function [S,out] = GSR_OH(C,X,Omega,reg,verbose)
                 beta = beta/2;
             end
         end
-        if verbose && mod(t,50)==0
+        if verbose && mod(t,500)==0
 
             figure(2)
             subplot(221)
@@ -84,9 +84,3 @@ function [S,out] = GSR_OH(C,X,Omega,reg,verbose)
     out.all_P = all_P;
 
 end
-
-
-
-
-
-

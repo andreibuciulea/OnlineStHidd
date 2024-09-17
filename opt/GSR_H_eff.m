@@ -4,8 +4,8 @@ function [S,out] = GSR_H_eff(C,Omega,reg,verbose)
     rho = reg.rho; %matrix P
     alpha = reg.alpha;%soft thresholding
     beta = reg.beta; % proximal of P
-    max_iters = reg.max_iters*100;
-    Omega = zeros(size(C));
+    max_iters = reg.max_iters;
+    max_iters = 1e5;
     
     if verbose
        disp('  -Starting GSR OH optimization') 
@@ -19,13 +19,8 @@ function [S,out] = GSR_H_eff(C,Omega,reg,verbose)
     lambda = max(eig(C))^2;
     gamma  = 1/(4*mu*lambda);
 
-    %Update the covariance considering all the previous samples X*X';
-
     for k = 1:max_iters
       %Compute gradient
-        %R = C*S+P-S*C-P';
-        %gS = mu*(C*R-R*C);
-
         R = S*C+P-C*S-P';
         gS = mu*(R*C-C*R);
       %Take gradient descent step
@@ -39,22 +34,7 @@ function [S,out] = GSR_H_eff(C,Omega,reg,verbose)
         Wp = P-rho*gamma*gP; 
       %Update P
         P = myP_proximal(Wp,beta);
-%         figure(1)
-%         subplot(221)
-%         imagesc(S)
-%         colorbar()
-%         title('S GSR OH')
-%         subplot(222)
-%         imagesc(P)
-%         colorbar()
-%         title('P GSR OH')
     end
-    %if verbose 
-
-
-    %end
-    %all_S(:,:) = S;
-    %all_P(:,:) = P;
 
     out.all_S = S;
     out.all_P = P;
