@@ -29,17 +29,13 @@ function [X,X_0,C,snr] = generate_graph_signals(sig_type, L, params, verbose)
             X_0 = V*H;
             C = V*Sigma_frecs*V';   
         case 'ST'    
-            %exponential decay for coefficients (exponential distibution)
-            %normalize the graph before generating the covariance
-            %S = S/max(eig(abs(S)));
-
-            h1 = rand(3,1); % Draw the coefficients of the first polynomial
-            %h1 = sort(exprnd(1,3,1),'descend'); % Draw the coefficients from a exponential distribution
-            H1 = zeros(N,N);
+            h1 = sort(rand(3,1),'descend'); % Draw the coefficients of the first polynomial
+            H1 = zeros(N);
             for ii = 1:3
                 H1 = H1 + h1(ii)*S^(ii-1);
             end
-            C = H1^2;
+            C = H1*H1';
+            
             X_iid=randn(N,M);
             X_0 = sqrtm(C)*X_iid;
             

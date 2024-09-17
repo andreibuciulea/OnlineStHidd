@@ -4,7 +4,7 @@ function out = graph_estimation(Co, Ctrain, X_test, Omega, reg, Model,Ao,verbose
     err = zeros(T,1);fsc = zeros(T,1);
     if strcmp(Model,'GSR-H')
         % GSR H without online
-        [S_hat,~] = GSR_H(Co,reg,verbose);
+        [S_hat,~] = GSR_H(Co,Omega,reg,verbose);
         S_hat = S_hat/max(max(S_hat));
         err = norm(S_hat-Ao,"fro")^2/nAo*ones(T,1);
         fsc = fscore(Ao,mbinarize(S_hat,2))*ones(T,1);
@@ -31,6 +31,14 @@ function out = graph_estimation(Co, Ctrain, X_test, Omega, reg, Model,Ao,verbose
            AhOH = allA(:,:,t);
            err(t) = norm(AhOH-Ao,"fro")^2/nAo;
            fsc(t) = fscore(Ao,mbinarize(AhOH,2));
+        end
+    elseif strcmp(Model,'GSRH')
+        [~,outH] = GSRH(Ctrain,X_test,Omega,reg,verbose);
+        allA = outH.all_S;
+        for t = 1:T
+           AhH = allA(:,:,t);
+           err(t) = norm(AhH-Ao,"fro")^2/nAo;
+           fsc(t) = fscore(Ao,mbinarize(AhH,2));
         end
     else
         error('Unknown method')
